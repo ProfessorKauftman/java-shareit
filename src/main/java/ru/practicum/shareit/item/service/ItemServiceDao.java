@@ -7,8 +7,12 @@ import java.util.Optional;
 
 public interface ItemServiceDao {
     Item createItem(Item item);
+
     Item updateItem(Item item);
+
     Optional<Item> getItemById(Long itemId);
+
     List<Item> getAllItems(Long userId);
+
     List<Item> getByText(String text);
 }
