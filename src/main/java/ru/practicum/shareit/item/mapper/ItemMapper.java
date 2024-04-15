@@ -13,7 +13,7 @@ public class ItemMapper {
                 item.getRequestId() != null ? item.getRequestId() : null);
     }
 
-    public static Item dtoToItem (ItemDto itemDto) {
+    public static Item dtoToItem(ItemDto itemDto) {
         return new Item(
                 itemDto.getId(),
                 itemDto.getName(),

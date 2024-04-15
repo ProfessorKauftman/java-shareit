@@ -47,21 +47,20 @@ public class UserServiceDtoImpl implements UserServiceDto {
     }
 
     @Override
-    public UserDto findUserDtoById(Long id) {
-        if (!checkUserDtoExists(id)) {
-            throw new NotFoundException("User with id: " + id + " doesn't exist");
+    public UserDto findUserDtoById(Long userId) {
+        if (!checkUserDtoExists(userId)) {
+            throw new NotFoundException("User with id: " + userId + " doesn't exist");
         }
-        User user = userServiceDao.findUserById(id);
+        User user = userServiceDao.findUserById(userId);
         return UserMapper.userToDto(user);
     }
 
     @Override
-    public void deleteUserDto(Long id) {
-       /* if (checkUserDtoExists(id)) {
-            userServiceDao.deleteUser(id);
+    public void deleteUserDto(Long userId) {
+        if (!checkUserDtoExists(userId)) {
+            throw new NotFoundException("User with id: " + userId + " doesn't exist");
         }
-        throw new NotFoundException("User with id: " + id + " doesn't exist");*/
-        userServiceDao.deleteUser(id);
+        userServiceDao.deleteUser(userId);
     }
 
     @Override
@@ -84,6 +83,4 @@ public class UserServiceDtoImpl implements UserServiceDto {
         return userServiceDao.findAllUsers().stream()
                 .anyMatch(user -> user.getId().equals(userId));
     }
-
-
 }

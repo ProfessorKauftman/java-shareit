@@ -7,6 +7,7 @@ import ru.practicum.shareit.exceptions.NotUniqueEmailException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
+
 @Repository
 @RequiredArgsConstructor
 public class UserServiceDaoImpl implements UserServiceDao {
