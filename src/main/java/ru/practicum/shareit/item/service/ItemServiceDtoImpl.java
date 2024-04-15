@@ -27,8 +27,8 @@ public class ItemServiceDtoImpl implements ItemServiceDto {
     public ItemDto createItemDto(Long userId, ItemDto itemDto) {
         UserDto userDto = UserMapper.userToDto(userServiceDaoImpl.findUserById(userId));
         Item item = ItemMapper.dtoToItem(itemDto);
-        item.setOwnerId(UserMapper.DtoToUser(userDto).getId());
-        return ItemMapper.ItemToDto(serviceDao.createItem(item));
+        item.setOwnerId(UserMapper.dtoToUser(userDto).getId());
+        return ItemMapper.itemToDto(serviceDao.createItem(item));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class ItemServiceDtoImpl implements ItemServiceDto {
             item.setRequestId(itemFromStorage.getRequestId());
             item.setOwnerId(itemFromStorage.getOwnerId());
 
-            return ItemMapper.ItemToDto(serviceDao.updateItem(item));
+            return ItemMapper.itemToDto(serviceDao.updateItem(item));
         }
         return itemDto;
     }
@@ -67,7 +67,7 @@ public class ItemServiceDtoImpl implements ItemServiceDto {
             throw new NotFoundException(String.format("User with id %s"
                     + " doesn't have item with id %s", userId, itemId));
         }
-        return ItemMapper.ItemToDto(getItem.get());
+        return ItemMapper.itemToDto(getItem.get());
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ItemServiceDtoImpl implements ItemServiceDto {
         userServiceDaoImpl.findUserById(userId);
         List<Item> itemList = serviceDao.getAllItems(userId);
         return itemList.stream()
-                .map(ItemMapper::ItemToDto)
+                .map(ItemMapper::itemToDto)
                 .collect(Collectors.toList());
     }
 
@@ -87,7 +87,7 @@ public class ItemServiceDtoImpl implements ItemServiceDto {
         }
         List<Item> itemList = serviceDao.getByText(text);
         return itemList.stream()
-                .map(ItemMapper::ItemToDto)
+                .map(ItemMapper::itemToDto)
                 .collect(Collectors.toList());
     }
 }

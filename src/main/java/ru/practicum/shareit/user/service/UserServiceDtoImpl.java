@@ -18,7 +18,7 @@ public class UserServiceDtoImpl implements UserServiceDto {
 
     @Override
     public UserDto createUserDto(UserDto userDto) {
-        User user = UserMapper.DtoToUser(userDto);
+        User user = UserMapper.dtoToUser(userDto);
         checkEmailExists(user);
         return UserMapper.userToDto(userServiceDao.createUser(user));
 
