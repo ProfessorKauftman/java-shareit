@@ -40,7 +40,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDto getItemDtoById(@RequestHeader(USER_HEADER) Long userId,
-                                  @PathVariable("itemId") Long itemId) {
+                                  @PathVariable Long itemId) {
         log.info("GET-request to get an item with id= " + itemId + " by user with id= " + userId);
         return itemServiceDtoimpl.findItemDtoById(userId, itemId);
     }
@@ -53,7 +53,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchDtoItem(@RequestHeader(USER_HEADER) Long userId,
-                                       @RequestParam(name = "text") String text) {
+                                       @RequestParam String text) {
         log.info("GET-request to search an item");
         String searchText = text.toLowerCase();
         return itemServiceDtoimpl.findItemDtoByText(userId, searchText);

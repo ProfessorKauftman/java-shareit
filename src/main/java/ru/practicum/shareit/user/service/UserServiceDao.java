@@ -14,4 +14,8 @@ public interface UserServiceDao {
     void deleteUser(Long id);
 
     List<User> findAllUsers();
+
+    boolean isEmailTaken(String email); // проверяет, занят ли email
+
+    User findUserByEmail(String email); // находит пользователя по email
 }

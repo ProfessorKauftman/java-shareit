@@ -25,25 +25,18 @@ public class UserServiceDtoImpl implements UserServiceDto {
     }
 
     @Override
-    public UserDto updateUserDto(Long id, UserDto userDto) {
-        if (!checkUserDtoExists(id)) {
-            throw new NotFoundException("User with id: " + id + " doesn't exist");
+    public UserDto updateUserDto(Long userId, UserDto userDto) {
+        if (!checkUserDtoExists(userId)) {
+            throw new NotFoundException("User with id: " + userId + " doesn't exist");
         }
-        User user = new User();
-        UserDto forMemory = findUserDtoById(id);
-        if (userDto.getName() != null) {
-            user.setName(userDto.getName());
-        } else {
-            user.setName(forMemory.getName());
+        UserDto forMemory = findUserDtoById(userId);
+        String name = userDto.getName() != null ? userDto.getName() : forMemory.getName();
+        String email = userDto.getEmail() != null ? userDto.getEmail() : forMemory.getEmail();
+        if (userDto.getEmail() != null && !email.equals(forMemory.getEmail())) {
+            checkEmailExists(new User(userId, name, email));
         }
-        if (userDto.getEmail() != null) {
-            checkEmailExists(user);
-            user.setEmail(userDto.getEmail());
-        } else {
-            user.setEmail(forMemory.getEmail());
-        }
-        user.setId(id);
-        return UserMapper.userToDto(userServiceDao.updateUser(id, user));
+        User user = new User(userId, name, email);
+        return UserMapper.userToDto(userServiceDao.updateUser(userId, user));
     }
 
     @Override
@@ -71,13 +64,12 @@ public class UserServiceDtoImpl implements UserServiceDto {
     }
 
     private void checkEmailExists(User user) {
-        boolean isEmailNotUnique = userServiceDao.findAllUsers().stream()
-                .anyMatch(thisUser -> thisUser.getEmail().equals(user.getEmail())
-                        && !thisUser.getId().equals(user.getId()));
-        if (isEmailNotUnique) {
+        if (userServiceDao.isEmailTaken(user.getEmail()) &&
+                !user.getId().equals(userServiceDao.findUserByEmail(user.getEmail()).getId())) {
             throw new NotUniqueEmailException("User with this email already exists");
         }
     }
+
 
     private boolean checkUserDtoExists(Long userId) {
         return userServiceDao.findAllUsers().stream()

@@ -17,7 +17,7 @@ public class UserServiceDaoImpl implements UserServiceDao {
 
     @Override
     public User createUser(User user) {
-        checkEmailExists(user);
+        checkEmailExists(user.getEmail());
         user.setId(generatorId);
         users.put(generatorId, user);
         emails.add(user.getEmail());
@@ -57,18 +57,33 @@ public class UserServiceDaoImpl implements UserServiceDao {
         }
     }
 
-    private void checkEmailExists(User user) {
-        if (emails.contains(user.getEmail())) {
-            throw new NotUniqueEmailException("User with this email: " + user.getEmail() + " exists");
+    private void checkEmailExists(String email) {
+        if (emails.contains(email)) {
+            throw new NotUniqueEmailException("User with this email: " + email + " exists");
         }
     }
 
     private void updateEmail(String oldEmail, String newEmail) {
-        emails.remove(oldEmail);
-        if (emails.contains(newEmail)) {
-            emails.add(oldEmail);
-            throw new NotUniqueEmailException("User with this email already exists");
+        if (!oldEmail.equals(newEmail)) {
+            checkEmailExists(newEmail);
+            emails.remove(oldEmail);
+            emails.add(newEmail);
         }
-        emails.add(newEmail);
+
     }
+
+    @Override
+    public boolean isEmailTaken(String email) {
+        return emails.contains(email);
+    }
+
+    @Override
+    public User findUserByEmail(String email) {
+        return users.values().stream()
+                .filter(user -> email.equals(user.getEmail()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("User with email: " + email + " doesn't exist"));
+    }
+
+
 }

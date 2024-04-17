@@ -10,49 +10,45 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 public class ItemServiceDaoImpl implements ItemServiceDao {
-    private final Map<Long, List<Item>> items = new HashMap<>();
-    private Long generatorId = 1L;
+    private final Map<Long, Item> items = new HashMap<>();
+    private Long generatorId = 0L;
+
+    private long getId() {
+        return ++generatorId;
+    }
 
 
     @Override
     public Item createItem(Item item) {
-        item.setId(generatorId);
-        generatorId++;
-        List<Item> itemList = new ArrayList<>();
-        itemList.add(item);
-        items.put(item.getOwnerId(), itemList);
+        Long itemId = getId();
+        item.setId(itemId);
+        items.put(itemId, item);
         return item;
     }
 
     @Override
     public Item updateItem(Item item) {
-        List<Item> userItems = items.get(item.getOwnerId());
-        List<Item> removeItems = userItems.stream()
-                .filter(userItem -> userItem.getId().equals(item.getId()))
-                .collect(Collectors.toList());
-        userItems.removeAll(removeItems);
-        userItems.add(item);
+        items.put(item.getId(), item);
         return item;
     }
 
     @Override
     public Optional<Item> getItemById(Long itemId) {
-        return items.values().stream()
-                .flatMap(Collection::stream)
-                .filter(item -> item.getId().equals(itemId))
-                .findFirst();
+        return Optional.ofNullable(items.get(itemId));
     }
 
     @Override
     public List<Item> getAllItems(Long userId) {
-        return new ArrayList<>(items.get(userId));
+        List<Item> userItems = items.values().stream()
+                .filter(item -> userId.equals(item.getOwnerId()))
+                .collect(Collectors.toList());
+        return userItems;
     }
 
     @Override
     public List<Item> getByText(String text) {
         String searchText = text.toLowerCase();
         return items.values().stream()
-                .flatMap(Collection::stream)
                 .filter(Item::getAvailable)
                 .filter(item -> item.getName().toLowerCase().contains(searchText)
                         || item.getDescription().toLowerCase().contains(searchText))

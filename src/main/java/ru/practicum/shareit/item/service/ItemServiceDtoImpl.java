@@ -12,7 +12,6 @@ import ru.practicum.shareit.user.service.UserServiceDaoImpl;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,41 +32,37 @@ public class ItemServiceDtoImpl implements ItemServiceDto {
 
     @Override
     public ItemDto updateItemDto(Long userId, Long itemId, ItemDto itemDto) {
-        Optional<Item> itemOptional = serviceDao.getItemById(itemId);
-        if (itemOptional.isPresent()) {
-            if (!itemOptional.get().getOwnerId().equals(userId)) {
-                throw new NotFoundException(String.format("User with id %s " +
-                        "isn't the owner of the item with id %s", userId, itemId));
-            }
-            Item itemFromStorage = itemOptional.get();
-            Item item = ItemMapper.dtoToItem(itemDto);
-            if (Objects.isNull(item.getAvailable())) {
-                item.setAvailable(itemFromStorage.getAvailable());
-            }
-            if (Objects.isNull(item.getDescription())) {
-                item.setDescription(itemFromStorage.getDescription());
-            }
-            if (Objects.isNull(item.getName())) {
-                item.setName(itemFromStorage.getName());
-            }
-            item.setId(itemFromStorage.getId());
-            item.setRequestId(itemFromStorage.getRequestId());
-            item.setOwnerId(itemFromStorage.getOwnerId());
+        return serviceDao.getItemById(itemId)
+                .map(itemFromStorage -> {
+                    if (!itemFromStorage.getOwnerId().equals(userId)) {
+                        throw new NotFoundException(
+                                String.format("User with id %s isn't the owner of the item with id %s", userId, itemId));
+                    }
+                    Item itemToUpdate = ItemMapper.dtoToItem(itemDto);
+                    itemToUpdate.setId(itemId);
+                    itemToUpdate.setOwnerId(userId);
 
-            return ItemMapper.itemToDto(serviceDao.updateItem(item));
-        }
-        return itemDto;
+                    itemToUpdate.setAvailable(Optional
+                            .ofNullable(itemToUpdate.getAvailable())
+                            .orElse(itemFromStorage.getAvailable()));
+                    itemToUpdate.setDescription(Optional
+                            .ofNullable(itemToUpdate.getDescription())
+                            .orElse(itemFromStorage.getDescription()));
+                    itemToUpdate.setName(Optional
+                            .ofNullable(itemToUpdate.getName())
+                            .orElse(itemFromStorage.getName()));
+                    itemToUpdate.setRequestId(itemFromStorage.getRequestId());
+                    return ItemMapper.itemToDto(serviceDao.updateItem(itemToUpdate));
+                }).orElse(itemDto);
     }
 
     @Override
     public ItemDto findItemDtoById(Long userId, Long itemId) {
         userServiceDaoImpl.findUserById(userId);
-        Optional<Item> getItem = serviceDao.getItemById(itemId);
-        if (getItem.isEmpty()) {
-            throw new NotFoundException(String.format("User with id %s"
-                    + " doesn't have item with id %s", userId, itemId));
-        }
-        return ItemMapper.itemToDto(getItem.get());
+        return serviceDao.getItemById(itemId)
+                .map(ItemMapper::itemToDto)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id %s"
+                        + " doesn't have item with id %s", userId, itemId)));
     }
 
     @Override
