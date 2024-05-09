@@ -35,11 +35,8 @@ public class BookingServiceImp implements BookingService {
     @Transactional
     public BookingDtoOut add(Long userId, BookingDto bookingDto) {
         User user = UserMapper.toUser(userService.findById(userId));
-        Optional<Item> itemById = itemRepository.findById(bookingDto.getItemId());
-        if (itemById.isEmpty()) {
-            throw new NotFoundException("The item was not found");
-        }
-        Item item = itemById.get();
+        Item item = itemRepository.findById(bookingDto.getItemId())
+                .orElseThrow(() -> new NotFoundException("The item was not found"));
         bookingValidation(bookingDto, user, item);
         Booking booking = BookingMapper.toBooking(user, item, bookingDto);
         return BookingMapper.toBookingOut(bookingRepository.save(booking));
@@ -56,7 +53,6 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    @Transactional
     public BookingDtoOut findBookingByUserId(Long userId, Long bookingId) {
         Booking booking = validateBookingDetails(userId, bookingId, 2);
         assert booking != null;

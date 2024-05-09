@@ -25,19 +25,19 @@ public class Comment {
     private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
-    private User authorId;
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
 
     @CreationTimestamp
     private LocalDateTime created;
 
-    public Comment(String text, Item item, User authorId) {
+    public Comment(String text, Item item, User author) {
         this.text = text;
         this.item = item;
-        this.authorId = authorId;
+        this.author = author;
     }
 }

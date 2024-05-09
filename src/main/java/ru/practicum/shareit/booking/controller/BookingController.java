@@ -30,15 +30,15 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingDtoOut update(@RequestHeader(USER_HEADER) Long userId,
-                                @PathVariable("bookingId") Long bookingId,
-                                @RequestParam(name = "approved") Boolean approved) {
+                                @PathVariable Long bookingId,
+                                @RequestParam Boolean approved) {
         log.info("PATCH-request to update the booking status of an item from the owner with id: {}", userId);
         return bookingService.update(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public BookingDtoOut findBookingById(@RequestHeader(USER_HEADER) Long userId,
-                                         @PathVariable("bookingId") Long bookingId) {
+                                         @PathVariable Long bookingId) {
         log.info("GET-request to receive booking data from a user with id: {}", userId);
         return bookingService.findBookingByUserId(userId, bookingId);
     }

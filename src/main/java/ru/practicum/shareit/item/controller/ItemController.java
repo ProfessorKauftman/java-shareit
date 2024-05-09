@@ -44,7 +44,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ItemDtoOut getItemDtoById(@RequestHeader(USER_HEADER) Long userId,
-                                     @PathVariable("itemId") Long itemId) {
+                                     @PathVariable Long itemId) {
         log.info("GET-request to get an item with id= " + itemId + " by user with id= " + userId);
         return itemService.findItemDtoById(userId, itemId);
     }
@@ -57,7 +57,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDtoOut> searchDtoItem(@RequestHeader(USER_HEADER) Long userId,
-                                          @RequestParam(name = "text") String text) {
+                                          @RequestParam String text) {
         log.info("GET-request to search an item with text = {}", text);
         return itemService.findItemDtoByText(userId, text);
     }
