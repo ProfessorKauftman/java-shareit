@@ -2,12 +2,14 @@ package ru.practicum.shareit.booking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
 import ru.practicum.shareit.booking.setvice.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 import static ru.practicum.shareit.item.controller.ItemController.USER_HEADER;
@@ -17,6 +19,7 @@ import static ru.practicum.shareit.item.controller.ItemController.USER_HEADER;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
+@Validated
 public class BookingController {
 
     private final BookingService bookingService;
@@ -45,18 +48,22 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoOut> findAll(@RequestHeader(USER_HEADER) Long userId,
-                                       @RequestParam(value = "state", defaultValue = "ALL") String bookingStatus) {
+                                       @RequestParam(value = "state", defaultValue = "ALL") String bookingStatus,
+                                       @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                       @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info("GET-request to receive a list of all bookings of the current user with id: {} and status {}",
                 userId, bookingStatus);
-        return bookingService.findAllForBooker(userId, bookingStatus);
+        return bookingService.findAllForBooker(userId, bookingStatus, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDtoOut> findAllByOwner(@RequestHeader(USER_HEADER) Long userId,
                                               @RequestParam(value = "state",
-                                                      defaultValue = "ALL") String bookingStatus) {
+                                                      defaultValue = "ALL") String bookingStatus,
+                                              @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                              @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info("GET-request to receive a list of all bookings of the current owner with id: {} and status {}",
                 userId, bookingStatus);
-        return bookingService.findAllForOwner(userId, bookingStatus);
+        return bookingService.findAllForOwner(userId, bookingStatus, from, size);
     }
 }

@@ -1,9 +1,6 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -17,6 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @NoArgsConstructor
+@Builder
 @Table(name = "bookings", schema = "public")
 public class Booking {
     @Id
@@ -35,6 +33,7 @@ public class Booking {
     @ToString.Exclude
     private User booker;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Status status;
 
     public Booking(Item item, LocalDateTime start, LocalDateTime end, User booker, Status status) {

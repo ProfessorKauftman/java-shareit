@@ -1,16 +1,17 @@
 package ru.practicum.shareit.item.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentDtoOut;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoOut;
-import ru.practicum.shareit.item.service.ItemServiceImp;
+import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /*
@@ -19,11 +20,12 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/items")
+@Validated
 public class ItemController {
 
-    private final ItemServiceImp itemService;
+    @Autowired
+    private ItemService itemService;
     public static final String USER_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
@@ -50,16 +52,20 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoOut> getAllDtoItems(@RequestHeader(USER_HEADER) Long userId) {
+    public List<ItemDtoOut> getAllDtoItems(@RequestHeader(USER_HEADER) Long userId,
+                                           @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                           @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info("GET-request to get all items from the user with id= " + userId);
-        return itemService.findAllItemsDto(userId);
+        return itemService.findAllItemsDto(userId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDtoOut> searchDtoItem(@RequestHeader(USER_HEADER) Long userId,
-                                          @RequestParam String text) {
+                                          @RequestParam String text,
+                                          @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
+                                          @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         log.info("GET-request to search an item with text = {}", text);
-        return itemService.findItemDtoByText(userId, text);
+        return itemService.findItemDtoByText(userId, text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

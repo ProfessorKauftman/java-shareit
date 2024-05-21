@@ -2,11 +2,13 @@ package ru.practicum.shareit.request.dto;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.user.dto.UserDto;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 
 /**
  * TODO Sprint add-item-requests.
@@ -15,14 +17,12 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ItemRequestDto {
-    private Long id;
-    private String description;
-    private UserDto requester;
-    private LocalDateTime created;
 
-    public ItemRequestDto(Long id, String description) {
-        this.id = id;
-        this.description = description;
-    }
+    @NotBlank
+    @Size(max = 255)
+    private String description;
+
+
 }
