@@ -17,7 +17,10 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,13 +33,15 @@ import static ru.practicum.shareit.item.controller.ItemController.USER_HEADER;
 class BookingControllerTest {
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @MockBean
-    private BookingService bookingService;
+    BookingService bookingService;
+
+    private Clock fixed = Clock.fixed(Instant.parse("2024-05-23T12:34:56.789Z"), ZoneOffset.UTC);
 
     private final User user = User.builder()
             .id(1L)
@@ -53,18 +58,18 @@ class BookingControllerTest {
 
     private final BookingDto bookingDto = BookingDto.builder()
             .itemId(1L)
-            .start(LocalDateTime.now().plusDays(1L))
-            .end(LocalDateTime.now().plusDays(2L))
+            .start(LocalDateTime.now(fixed).plusDays(1L))
+            .end(LocalDateTime.now(fixed).plusDays(2L))
             .build();
 
 
     private final BookingDtoOut bookingDtoOut = BookingDtoOut.builder()
             .id(1L)
-            .start(LocalDateTime.now().plusDays(1L))
-            .end(LocalDateTime.now().plusDays(2L))
+            .start(LocalDateTime.now(fixed).plusDays(1L))
+            .end(LocalDateTime.now(fixed).plusDays(2L))
             .status(Status.WAITING)
-            .booker(UserMapper.toUserDto(user))
             .item(ItemMapper.toItemDtoOut(item))
+            .booker(UserMapper.toUserDto(user))
             .build();
 
 
@@ -82,7 +87,28 @@ class BookingControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(bookingDtoOut), result);
+        assertEquals("{"
+                        + "\"id\":1,"
+                        + "\"item\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Lopata\","
+                        + "\"description\":\"Lopata description\","
+                        + "\"available\":null,"
+                        + "\"lastBooking\":null,"
+                        + "\"comments\":null,"
+                        + "\"nextBooking\":null,"
+                        + "\"requestId\":null},"
+                        + "\"start\":\"2024-05-24T12:34:56.789\","
+                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"booker\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Professor\","
+                        + "\"email\":\"professor@yandex.ru\"},"
+                        + "\"status\":\"WAITING\","
+                        + "\"bookerId\":1,"
+                        + "\"itemId\":1"
+                        + "}",
+                result);
     }
 
     @Test
@@ -152,7 +178,30 @@ class BookingControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(bookingDtoOut), result);
+        assertEquals("{"
+                        + "\"id\":1,"
+                        + "\"item\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Lopata\","
+                        + "\"description\":\"Lopata description\","
+                        + "\"available\":null,"
+                        + "\"lastBooking\":null,"
+                        + "\"comments\":null,"
+                        + "\"nextBooking\":null,"
+                        + "\"requestId\":null"
+                        + "},"
+                        + "\"start\":\"2024-05-24T12:34:56.789\","
+                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"booker\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Professor\","
+                        + "\"email\":\"professor@yandex.ru\""
+                        + "},"
+                        + "\"status\":\"WAITING\","
+                        + "\"bookerId\":1,"
+                        + "\"itemId\":1"
+                        + "}",
+                result);
     }
 
     @Test
@@ -169,7 +218,30 @@ class BookingControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(bookingDtoOut), result);
+        assertEquals("{"
+                        + "\"id\":1,"
+                        + "\"item\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Lopata\","
+                        + "\"description\":\"Lopata description\","
+                        + "\"available\":null,"
+                        + "\"lastBooking\":null,"
+                        + "\"comments\":null,"
+                        + "\"nextBooking\":null,"
+                        + "\"requestId\":null"
+                        + "},"
+                        + "\"start\":\"2024-05-24T12:34:56.789\","
+                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"booker\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Professor\","
+                        + "\"email\":\"professor@yandex.ru\""
+                        + "},"
+                        + "\"status\":\"WAITING\","
+                        + "\"bookerId\":1,"
+                        + "\"itemId\":1"
+                        + "}",
+                result);
     }
 
     @Test
@@ -192,7 +264,30 @@ class BookingControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(List.of(bookingDtoOut)), result);
+        assertEquals("[{"
+                        + "\"id\":1,"
+                        + "\"item\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Lopata\","
+                        + "\"description\":\"Lopata description\","
+                        + "\"available\":null,"
+                        + "\"lastBooking\":null,"
+                        + "\"comments\":null,"
+                        + "\"nextBooking\":null,"
+                        + "\"requestId\":null"
+                        + "},"
+                        + "\"start\":\"2024-05-24T12:34:56.789\","
+                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"booker\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Professor\","
+                        + "\"email\":\"professor@yandex.ru\""
+                        + "},"
+                        + "\"status\":\"WAITING\","
+                        + "\"bookerId\":1,"
+                        + "\"itemId\":1"
+                        + "}]",
+                result);
     }
 
 
@@ -216,7 +311,30 @@ class BookingControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(List.of(bookingDtoOut)), result);
+        assertEquals("[{"
+                        + "\"id\":1,"
+                        + "\"item\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Lopata\","
+                        + "\"description\":\"Lopata description\","
+                        + "\"available\":null,"
+                        + "\"lastBooking\":null,"
+                        + "\"comments\":null,"
+                        + "\"nextBooking\":null,"
+                        + "\"requestId\":null"
+                        + "},"
+                        + "\"start\":\"2024-05-24T12:34:56.789\","
+                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"booker\":{"
+                        + "\"id\":1,"
+                        + "\"name\":\"Professor\","
+                        + "\"email\":\"professor@yandex.ru\""
+                        + "},"
+                        + "\"status\":\"WAITING\","
+                        + "\"bookerId\":1,"
+                        + "\"itemId\":1"
+                        + "}]",
+                result);
 
     }
 }

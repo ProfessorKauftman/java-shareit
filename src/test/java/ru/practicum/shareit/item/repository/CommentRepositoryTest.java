@@ -21,36 +21,34 @@ import static org.junit.jupiter.api.Assertions.*;
 class CommentRepositoryTest {
 
     @Autowired
-    private CommentRepository commentRepository;
+    CommentRepository commentRepository;
 
     @Autowired
-    private TestEntityManager testEntityManager;
-
-    private final User user = User.builder()
-            .name("Professor")
-            .email("professor@yandex.ru")
-            .build();
-
-    private final Item item = Item.builder()
-            .name("Item")
-            .description("Description")
-            .owner(user)
-            .available(true)
-            .build();
-
-    private final Comment comment = Comment.builder()
-            .item(item)
-            .author(user)
-            .created(LocalDateTime.now())
-            .text("Comment")
-            .build();
+    TestEntityManager testEntityManager;
 
     @BeforeEach
     public void init() {
-        testEntityManager.persist(user);
-        testEntityManager.persist(item);
-        testEntityManager.flush();
-        commentRepository.save(comment);
+        User user = User.builder()
+                .name("Professor")
+                .email("professor@yandex.ru")
+                .build();
+        testEntityManager.persistFlushFind(user);
+
+        Item item = Item.builder()
+                .name("Item")
+                .description("Description")
+                .owner(user)
+                .available(true)
+                .build();
+        testEntityManager.persistFlushFind(item);
+
+        Comment comment = Comment.builder()
+                .item(item)
+                .author(user)
+                .created(LocalDateTime.now())
+                .text("Comment")
+                .build();
+        testEntityManager.persistFlushFind(comment);
     }
 
     @AfterEach

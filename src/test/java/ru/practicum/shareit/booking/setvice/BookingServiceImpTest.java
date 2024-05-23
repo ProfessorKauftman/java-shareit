@@ -180,7 +180,7 @@ class BookingServiceImpTest {
         ValidationException validationException = assertThrows(ValidationException.class,
                 () -> bookingServiceImp.update(owner.getId(), booking.getId(), false));
 
-        assertEquals(validationException.getMessage(),"Booking with not the WAITING status");
+        assertEquals(validationException.getMessage(), "Booking with not the WAITING status");
     }
 
     @Test
@@ -217,10 +217,10 @@ class BookingServiceImpTest {
     void whenGetByIdAndUserIsNotItemOwnerShouldThrowNotFoundException() {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
 
-       NotFoundException notFoundException = assertThrows(NotFoundException.class,
+        NotFoundException notFoundException = assertThrows(NotFoundException.class,
                 () -> bookingServiceImp.findBookingByUserId(3L, booking.getId()));
 
-       assertEquals(notFoundException.getMessage(), "The user is not the owner or the author of the reservation");
+        assertEquals(notFoundException.getMessage(), "The user is not the owner or the author of the reservation");
     }
 
     @Test
@@ -390,7 +390,6 @@ class BookingServiceImpTest {
         assertThrows(IllegalArgumentException.class,
                 () -> bookingServiceImp.findAllForBooker(user.getId(), "ERROR", 0, 10));
     }
-
 
 
 }

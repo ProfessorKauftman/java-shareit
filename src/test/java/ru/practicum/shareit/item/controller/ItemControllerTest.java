@@ -30,13 +30,13 @@ import static ru.practicum.shareit.item.controller.ItemController.USER_HEADER;
 class ItemControllerTest {
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @MockBean
-    private ItemService itemService;
+    ItemService itemService;
 
     private final User user = User.builder()
             .id(1L)
@@ -65,9 +65,9 @@ class ItemControllerTest {
                 .thenReturn(ItemMapper.toItemDtoOut(ItemMapper.dtoToItem(itemDto)));
 
         String result = mockMvc.perform(post("/items")
-                .contentType("application/json")
-                .header(USER_HEADER, userId)
-                .content(objectMapper.writeValueAsString(itemDto)))
+                        .contentType("application/json")
+                        .header(USER_HEADER, userId)
+                        .content(objectMapper.writeValueAsString(itemDto)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -77,7 +77,6 @@ class ItemControllerTest {
         assertEquals(itemDto.getName(), resultItemDto.getName());
         assertEquals(itemDto.getDescription(), resultItemDto.getDescription());
         assertEquals(itemDto.getAvailable(), resultItemDto.getAvailable());
-
     }
 
     @Test
@@ -155,7 +154,17 @@ class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(itemDtoOut), result);
+        assertEquals("{"
+                        + "\"id\":null,"
+                        + "\"name\":\"\","
+                        + "\"description\":\"\","
+                        + "\"available\":true,"
+                        + "\"lastBooking\":null,"
+                        + "\"comments\":null,"
+                        + "\"nextBooking\":null,"
+                        + "\"requestId\":null"
+                        + "}",
+                result);
     }
 
     @Test
@@ -179,7 +188,17 @@ class ItemControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(itemsDto), result);
+        assertEquals("[{"
+                        + "\"id\":null,"
+                        + "\"name\":\"Some item\","
+                        + "\"description\":\"Some description\","
+                        + "\"available\":true,"
+                        + "\"lastBooking\":null,"
+                        + "\"comments\":null,"
+                        + "\"nextBooking\":null,"
+                        + "\"requestId\":null"
+                        + "}]",
+                result);
     }
 
     @Test
@@ -199,14 +218,24 @@ class ItemControllerTest {
         when(itemService.findItemDtoByText(userId, text, from, size)).thenReturn(itemsDto);
 
         String result = mockMvc.perform(MockMvcRequestBuilders.get("/items/search", from, size)
-                .header(USER_HEADER, userId)
-                .param("text", text))
+                        .header(USER_HEADER, userId)
+                        .param("text", text))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(itemsDto), result);
+        assertEquals("[{"
+                        + "\"id\":null,"
+                        + "\"name\":\"Some item\","
+                        + "\"description\":\"Some description\","
+                        + "\"available\":true,"
+                        + "\"lastBooking\":null,"
+                        + "\"comments\":null,"
+                        + "\"nextBooking\":null,"
+                        + "\"requestId\":null"
+                        + "}]",
+                result);
     }
 
     @Test
@@ -225,15 +254,22 @@ class ItemControllerTest {
         when(itemService.createComment(user.getId(), commentDto, item.getId())).thenReturn(commentDtoOut);
 
         String result = mockMvc.perform(post("/items/{itemId}/comment", item.getId())
-                .contentType("application/json")
-                .header(USER_HEADER, user.getId())
-                .content(objectMapper.writeValueAsBytes(commentDto)))
+                        .contentType("application/json")
+                        .header(USER_HEADER, user.getId())
+                        .content(objectMapper.writeValueAsBytes(commentDto)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(commentDtoOut), result);
+        assertEquals("{"
+                        + "\"id\":1,"
+                        + "\"text\":\"Comment\","
+                        + "\"authorName\":null,"
+                        + "\"created\":null,"
+                        + "\"itemId\":1"
+                        + "}",
+                result);
     }
 
     @Test
@@ -260,15 +296,14 @@ class ItemControllerTest {
         String text = "item";
 
         mockMvc.perform(get("/items/search")
-                .param("text", text)
-                .param("from", String.valueOf(from))
-                .param("size", String.valueOf(size))
-                .contentType("application/json")
-                .header(USER_HEADER, user.getId()))
+                        .param("text", text)
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .contentType("application/json")
+                        .header(USER_HEADER, user.getId()))
                 .andExpect(status().isBadRequest());
 
         verify(itemService, never()).findItemDtoByText(user.getId(), text, from, size);
-
     }
 
 }

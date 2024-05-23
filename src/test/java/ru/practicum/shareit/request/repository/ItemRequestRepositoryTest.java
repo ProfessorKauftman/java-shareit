@@ -20,49 +20,48 @@ import static org.junit.jupiter.api.Assertions.*;
 class ItemRequestRepositoryTest {
 
     @Autowired
-    private ItemRequestRepository itemRequestRepository;
+    ItemRequestRepository itemRequestRepository;
 
     @Autowired
-    private TestEntityManager testEntityManager;
-
-    private final User user1 = User.builder()
-            .name("Professor")
-            .email("professor@yandex.ru")
-            .build();
-
-    private final User user2 = User.builder()
-            .name("Ne_Professor")
-            .email("NeProfessor@yandex.ru")
-            .build();
-
-    private final Item item = Item.builder()
-            .name("Lopata")
-            .description("Lopata description")
-            .available(true)
-            .owner(user1)
-            .build();
-
-    private final ItemRequest request1 = ItemRequest.builder()
-            .items(List.of(item))
-            .description("Request description")
-            .created(LocalDateTime.now())
-            .requester(user1)
-            .build();
-
-    private final ItemRequest request2 = ItemRequest.builder()
-            .items(List.of(item))
-            .description("Request description 2")
-            .created(LocalDateTime.now())
-            .requester(user2)
-            .build();
+    TestEntityManager testEntityManager;
 
     @BeforeEach
     public void init() {
-        testEntityManager.persist(user1);
-        testEntityManager.persist(user2);
-        testEntityManager.persist(item);
-        testEntityManager.flush();
+        User user1 = User.builder()
+                .name("Professor")
+                .email("professor@yandex.ru")
+                .build();
+        testEntityManager.persistFlushFind(user1);
+
+        User user2 = User.builder()
+                .name("Ne_Professor")
+                .email("NeProfessor@yandex.ru")
+                .build();
+        testEntityManager.persistFlushFind(user2);
+
+        Item item = Item.builder()
+                .name("Lopata")
+                .description("Lopata description")
+                .available(true)
+                .owner(user1)
+                .build();
+        testEntityManager.persistFlushFind(item);
+
+        ItemRequest request1 = ItemRequest.builder()
+                .items(List.of(item))
+                .description("Request description")
+                .created(LocalDateTime.now())
+                .requester(user1)
+                .build();
         itemRequestRepository.save(request1);
+
+        ItemRequest request2 = ItemRequest.builder()
+                .items(List.of(item))
+                .description("Request description 2")
+                .created(LocalDateTime.now())
+                .requester(user2)
+                .build();
+
         itemRequestRepository.save(request2);
     }
 

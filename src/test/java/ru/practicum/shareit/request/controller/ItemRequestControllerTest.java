@@ -13,7 +13,10 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,13 +29,15 @@ import static ru.practicum.shareit.item.controller.ItemController.USER_HEADER;
 class ItemRequestControllerTest {
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @MockBean
-    private ItemRequestService itemRequestService;
+    ItemRequestService itemRequestService;
+
+    private Clock fixed = Clock.fixed(Instant.parse("2024-05-23T12:34:56.789Z"), ZoneOffset.UTC);
 
     private final User user = User.builder()
             .id(1L)
@@ -43,7 +48,7 @@ class ItemRequestControllerTest {
     private final ItemRequestDtoOut requestDtoOut = ItemRequestDtoOut.builder()
             .id(1L)
             .description("Description")
-            .created(LocalDateTime.now())
+            .created(LocalDateTime.now(fixed))
             .items(List.of())
             .build();
 
@@ -63,7 +68,12 @@ class ItemRequestControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(requestDtoOut), result);
+        assertEquals("{"
+                + "\"id\":1,"
+                + "\"description\":\"Description\","
+                + "\"created\":\"2024-05-23T12:34:56\","
+                + "\"items\":[]"
+                + "}", result);
     }
 
     @Test
@@ -80,7 +90,12 @@ class ItemRequestControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(List.of(requestDtoOut)), result);
+        assertEquals("[{"
+                + "\"id\":1,"
+                + "\"description\":\"Description\","
+                + "\"created\":\"2024-05-23T12:34:56\","
+                + "\"items\":[]"
+                + "}]", result);
     }
 
     @Test
@@ -100,7 +115,12 @@ class ItemRequestControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(List.of(requestDtoOut)), result);
+        assertEquals("[{"
+                + "\"id\":1,"
+                + "\"description\":\"Description\","
+                + "\"created\":\"2024-05-23T12:34:56\","
+                + "\"items\":[]"
+                + "}]", result);
     }
 
     @Test
@@ -120,7 +140,12 @@ class ItemRequestControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(requestDtoOut), result);
+        assertEquals("{"
+                + "\"id\":1,"
+                + "\"description\":\"Description\","
+                + "\"created\":\"2024-05-23T12:34:56\","
+                + "\"items\":[]"
+                + "}", result);
     }
 
 }

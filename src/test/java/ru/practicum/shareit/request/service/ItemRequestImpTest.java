@@ -29,13 +29,13 @@ import static org.mockito.Mockito.when;
 class ItemRequestImpTest {
 
     @Mock
-    private ItemRequestRepository itemRequestRepository;
+    ItemRequestRepository itemRequestRepository;
 
     @Mock
-    private UserService userService;
+    UserService userService;
 
     @InjectMocks
-    private ItemRequestImp requestServiceImp;
+    ItemRequestImp requestServiceImp;
 
     private final User user = User.builder()
             .id(1L)
@@ -78,7 +78,6 @@ class ItemRequestImpTest {
     @Test
     void whenGetUserRequestsIsOk() {
         List<ItemRequestDtoOut> requestDtoOuts = List.of(ItemRequestMapper.toRequestDtoOut(request));
-        when(userService.findById(user.getId())).thenReturn(userDto);
         when(itemRequestRepository.findAllByRequesterId(userDto.getId())).thenReturn(List.of(request));
 
         List<ItemRequestDtoOut> realRequestsDto = requestServiceImp.getUserRequests(userDto.getId());
@@ -89,7 +88,6 @@ class ItemRequestImpTest {
     @Test
     void whenGetAllRequestsIsOk() {
         List<ItemRequestDtoOut> requestDtoOuts = List.of(ItemRequestMapper.toRequestDtoOut(request));
-        when(userService.findById(user.getId())).thenReturn(userDto);
         when(itemRequestRepository.findAllByRequester_IdNotOrderByCreatedDesc(anyLong(),
                 any(PageRequest.class))).thenReturn(List.of(request));
 

@@ -24,61 +24,64 @@ import static org.junit.jupiter.api.Assertions.*;
 class BookingRepositoryTest {
 
     @Autowired
-    private BookingRepository bookingRepository;
+    BookingRepository bookingRepository;
 
     @Autowired
-    private TestEntityManager testEntityManager;
+    TestEntityManager testEntityManager;
 
-    private final User user = User.builder()
-            .name("Professors")
-            .email("professor@yandex.ru")
-            .build();
-
-    private final User owner = User.builder()
-            .name("ProfessorsOwner")
-            .email("professorOwner@yandex.ru")
-            .build();
-
-    private final Item item = Item.builder()
-            .name("Lopata")
-            .description("Lopata description")
-            .available(true)
-            .owner(owner)
-            .build();
-
-    private final Booking booking = Booking.builder()
-            .item(item)
-            .booker(user)
-            .status(Status.APPROVED)
-            .start(LocalDateTime.now().minusHours(1L))
-            .end(LocalDateTime.now().plusWeeks(1L))
-            .build();
-
-    private final Booking pastBooking = Booking.builder()
-            .item(item)
-            .booker(user)
-            .status(Status.APPROVED)
-            .start(LocalDateTime.now().minusDays(2L))
-            .end(LocalDateTime.now().minusWeeks(1L))
-            .build();
-
-    private final Booking futureBooking = Booking.builder()
-            .item(item)
-            .booker(user)
-            .status(Status.APPROVED)
-            .start(LocalDateTime.now().plusDays(1L))
-            .end(LocalDateTime.now().plusWeeks(2L))
-            .build();
+    private Long userId;
+    private Long itemId;
 
     @BeforeEach
     public void init() {
-        testEntityManager.persist(user);
-        testEntityManager.persist(owner);
-        testEntityManager.persist(item);
-        testEntityManager.flush();
-        bookingRepository.save(booking);
-        bookingRepository.save(pastBooking);
-        bookingRepository.save(futureBooking);
+        User user = User.builder()
+                .name("Professors")
+                .email("professor@yandex.ru")
+                .build();
+        user = testEntityManager.persistFlushFind(user);
+        userId = user.getId();
+
+        User owner = User.builder()
+                .name("ProfessorsOwner")
+                .email("professorOwner@yandex.ru")
+                .build();
+        owner = testEntityManager.persistFlushFind(owner);
+
+        Item item = Item.builder()
+                .name("Lopata")
+                .description("Lopata description")
+                .available(true)
+                .owner(owner)
+                .build();
+        item = testEntityManager.persistFlushFind(item);
+        itemId = item.getId();
+
+        final Booking booking = Booking.builder()
+                .item(item)
+                .booker(user)
+                .status(Status.APPROVED)
+                .start(LocalDateTime.now().minusHours(1L))
+                .end(LocalDateTime.now().plusWeeks(1L))
+                .build();
+        testEntityManager.persistAndFlush(booking);
+
+        final Booking pastBooking = Booking.builder()
+                .item(item)
+                .booker(user)
+                .status(Status.APPROVED)
+                .start(LocalDateTime.now().minusDays(2L))
+                .end(LocalDateTime.now().minusWeeks(1L))
+                .build();
+        testEntityManager.persistAndFlush(pastBooking);
+
+        final Booking futureBooking = Booking.builder()
+                .item(item)
+                .booker(user)
+                .status(Status.APPROVED)
+                .start(LocalDateTime.now().plusDays(1L))
+                .end(LocalDateTime.now().plusWeeks(2L))
+                .build();
+        testEntityManager.persistAndFlush(futureBooking);
     }
 
     @AfterEach
@@ -122,6 +125,9 @@ class BookingRepositoryTest {
 
     @Test
     void whenFindAllWaitingBookingsByBookerIdIsOk() {
+        User user = testEntityManager.find(User.class, userId);
+        Item item = testEntityManager.find(Item.class, itemId);
+
         Booking waitingBooking = Booking.builder()
                 .item(item)
                 .booker(user)
@@ -141,6 +147,8 @@ class BookingRepositoryTest {
 
     @Test
     void whenFindAllRejectedBookingByBookerIdIsOk() {
+        User user = testEntityManager.find(User.class, userId);
+        Item item = testEntityManager.find(Item.class, itemId);
         Booking waitingBooking = Booking.builder()
                 .item(item)
                 .booker(user)
@@ -194,6 +202,8 @@ class BookingRepositoryTest {
 
     @Test
     void whenFindAllWaitingBookingsByOwnerIdIsOk() {
+        User user = testEntityManager.find(User.class, userId);
+        Item item = testEntityManager.find(Item.class, itemId);
         Booking waitingBooking = Booking.builder()
                 .item(item)
                 .booker(user)
@@ -213,6 +223,8 @@ class BookingRepositoryTest {
 
     @Test
     void whenFindAllRejectedBookingByOwnerIdIsOk() {
+        User user = testEntityManager.find(User.class, userId);
+        Item item = testEntityManager.find(Item.class, itemId);
         Booking waitingBooking = Booking.builder()
                 .item(item)
                 .booker(user)
@@ -256,16 +268,11 @@ class BookingRepositoryTest {
     @Test
     void whenGetNextBookingIsOk() {
         Optional<Booking> bookingOptional = bookingRepository.getNextBooking(1L, LocalDateTime.now());
-        Booking realBooking;
 
-        if (bookingOptional.isPresent()) {
-            realBooking = bookingOptional.get();
+        assertTrue(bookingOptional.isPresent(), "Booking should be present");
 
-            assertEquals(realBooking.getId(), 3L);
-        } else {
-
-            fail();
-        }
+        Booking realBooking = bookingOptional.get();
+        assertEquals(realBooking.getId(), 3L);
     }
 
 

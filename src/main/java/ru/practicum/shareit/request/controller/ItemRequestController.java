@@ -38,9 +38,9 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemRequestDtoOut> getAllRequests(@RequestHeader(USER_HEADER) Long userId,
-                                                  @RequestParam(name = "from", defaultValue = "0")
+                                                  @RequestParam(defaultValue = "0")
                                                   @Min(0) Integer from,
-                                                  @RequestParam(value = "size", defaultValue = "10")
+                                                  @RequestParam(defaultValue = "10")
                                                   @Min(1) Integer size) {
         return itemRequestService.getAllRequests(userId, from, size);
     }

@@ -20,27 +20,26 @@ import static org.junit.jupiter.api.Assertions.*;
 class ItemRepositoryTest {
 
     @Autowired
-    private ItemRepository itemRepository;
+    ItemRepository itemRepository;
 
     @Autowired
-    private TestEntityManager testEntityManager;
+    TestEntityManager testEntityManager;
 
-    private final User user = User.builder()
-            .name("Professor")
-            .email("professor@yandex.ru")
-            .build();
-
-    private final Item item = Item.builder()
-            .name("item")
-            .description("description")
-            .available(true)
-            .owner(user)
-            .build();
 
     @BeforeEach
     public void addItems() {
-        testEntityManager.persist(user);
-        testEntityManager.flush();
+        User user = User.builder()
+                .name("Professor")
+                .email("professor@yandex.ru")
+                .build();
+        testEntityManager.persistFlushFind(user);
+
+        Item item = Item.builder()
+                .name("item")
+                .description("description")
+                .available(true)
+                .owner(user)
+                .build();
         itemRepository.save(item);
     }
 

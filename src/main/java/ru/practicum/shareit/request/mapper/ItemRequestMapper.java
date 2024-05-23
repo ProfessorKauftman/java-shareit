@@ -8,9 +8,7 @@ import ru.practicum.shareit.request.dto.ItemRequestDtoOut;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -28,13 +26,12 @@ public class ItemRequestMapper {
     }
 
     public ItemRequestDtoOut toRequestDtoOut(ItemRequest itemRequest) {
-        List<ItemDtoOut> itemsDtoOut = new ArrayList<>();
-        if (!Objects.isNull(itemRequest.getItems())) {
-            itemsDtoOut = itemRequest.getItems()
-                    .stream()
-                    .map(ItemMapper::toItemDtoOut)
-                    .collect(Collectors.toList());
-        }
+        List<ItemDtoOut> itemsDtoOut = Optional.ofNullable(itemRequest.getItems())
+                .map(items -> items.stream()
+                        .map(ItemMapper::toItemDtoOut)
+                        .collect(Collectors.toList()))
+                .orElseGet(Collections::emptyList);
+
         return ItemRequestDtoOut.builder()
                 .id(itemRequest.getId())
                 .description(itemRequest.getDescription())
@@ -42,4 +39,5 @@ public class ItemRequestMapper {
                 .items(itemsDtoOut)
                 .build();
     }
+
 }

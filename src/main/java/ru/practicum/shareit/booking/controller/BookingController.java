@@ -48,9 +48,9 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoOut> findAll(@RequestHeader(USER_HEADER) Long userId,
-                                       @RequestParam(value = "state", defaultValue = "ALL") String bookingStatus,
-                                       @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
-                                       @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
+                                       @RequestParam(defaultValue = "ALL") String bookingStatus,
+                                       @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                       @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("GET-request to receive a list of all bookings of the current user with id: {} and status {}",
                 userId, bookingStatus);
         return bookingService.findAllForBooker(userId, bookingStatus, from, size);
@@ -58,10 +58,9 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<BookingDtoOut> findAllByOwner(@RequestHeader(USER_HEADER) Long userId,
-                                              @RequestParam(value = "state",
-                                                      defaultValue = "ALL") String bookingStatus,
-                                              @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
-                                              @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
+                                              @RequestParam(defaultValue = "ALL") String bookingStatus,
+                                              @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                              @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("GET-request to receive a list of all bookings of the current owner with id: {} and status {}",
                 userId, bookingStatus);
         return bookingService.findAllForOwner(userId, bookingStatus, from, size);

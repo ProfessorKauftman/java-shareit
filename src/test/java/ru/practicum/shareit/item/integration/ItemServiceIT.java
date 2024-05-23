@@ -31,16 +31,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ItemServiceIT {
 
     @Autowired
-    private ItemService itemService;
+    ItemService itemService;
 
     @Autowired
-    private UserService userService;
+    UserService userService;
 
     @Autowired
-    private ItemRequestService requestService;
+    ItemRequestService requestService;
 
     @Autowired
-    private BookingService bookingService;
+    BookingService bookingService;
 
     private final UserDto userDto1 = UserDto.builder()
             .name("Professor")

@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BookingDtoTest {
 
     @Autowired
-    private JacksonTester<BookingDto> json;
+    JacksonTester<BookingDto> json;
 
     private static final String DATE_TIME = "2024-05-23T15:12:00";
 

@@ -24,18 +24,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    UserService userService;
 
     @Test
     @SneakyThrows
     void whenCreateUserAndHeIsValid() {
         UserDto userDto = UserDto.builder()
+                .id(1L)
                 .name("Professor")
                 .email("professor@yandex.ru")
                 .build();
@@ -43,14 +44,18 @@ class UserControllerTest {
         when(userService.add(userDto)).thenReturn(userDto);
 
         String result = mockMvc.perform(post("/users")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(userDto)))
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(userDto), result);
+        assertEquals("{"
+                + "\"id\":1,"
+                + "\"name\":\"Professor\","
+                + "\"email\":\"professor@yandex.ru\""
+                + "}", result);
     }
 
     @Test
@@ -64,8 +69,8 @@ class UserControllerTest {
         when(userService.add(userDto)).thenReturn(userDto);
 
         mockMvc.perform(post("/users")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(userDto)))
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isBadRequest());
 
         verify(userService, never()).add(userDto);
@@ -94,6 +99,7 @@ class UserControllerTest {
     void whenUpdateUserAndEverythingIsOk() {
         long userId = 0L;
         UserDto userDto = UserDto.builder()
+                .id(1L)
                 .name("UpdateProfessor")
                 .email("updateProfessor@yandex.ru")
                 .build();
@@ -108,7 +114,11 @@ class UserControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(userDto), result);
+        assertEquals("{"
+                + "\"id\":1,"
+                + "\"name\":\"UpdateProfessor\","
+                + "\"email\":\"updateProfessor@yandex.ru\""
+                + "}", result);
     }
 
     @Test
@@ -147,6 +157,7 @@ class UserControllerTest {
     void whenGetAllUsersAndEverythingIsOk() {
         List<UserDto> userDtoList = List.of(
                 UserDto.builder()
+                        .id(1L)
                         .name("Professor")
                         .email("professor@yandex.ru")
                         .build());
@@ -159,7 +170,12 @@ class UserControllerTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals(objectMapper.writeValueAsString(userDtoList), result);
+        assertEquals("[{"
+                + "\"id\":1,"
+                + "\"name\":\"Professor\","
+                + "\"email\":\"professor@yandex.ru\""
+                + "}]", result);
+
     }
 
     @Test

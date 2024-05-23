@@ -53,8 +53,8 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDtoOut> getAllDtoItems(@RequestHeader(USER_HEADER) Long userId,
-                                           @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
-                                           @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
+                                           @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                           @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("GET-request to get all items from the user with id= " + userId);
         return itemService.findAllItemsDto(userId, from, size);
     }
@@ -62,8 +62,8 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDtoOut> searchDtoItem(@RequestHeader(USER_HEADER) Long userId,
                                           @RequestParam String text,
-                                          @RequestParam(value = "from", defaultValue = "0") @Min(0) Integer from,
-                                          @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
+                                          @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                          @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("GET-request to search an item with text = {}", text);
         return itemService.findItemDtoByText(userId, text, from, size);
     }

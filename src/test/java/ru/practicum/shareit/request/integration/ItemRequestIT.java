@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ItemRequestIT {
 
     @Autowired
-    private ItemRequestService itemRequestService;
+    ItemRequestService itemRequestService;
 
     @Autowired
-    private UserService userService;
+    UserService userService;
 
     private final UserDto userDto = UserDto.builder()
             .name("Professor")

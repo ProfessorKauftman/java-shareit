@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserServiceIT {
 
     @Autowired
-    private UserService userService;
+    UserService userService;
 
     private final UserDto userDto = UserDto.builder()
             .name("Professor")
