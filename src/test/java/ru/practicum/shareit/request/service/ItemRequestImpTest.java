@@ -78,6 +78,7 @@ class ItemRequestImpTest {
     @Test
     void whenGetUserRequestsIsOk() {
         List<ItemRequestDtoOut> requestDtoOuts = List.of(ItemRequestMapper.toRequestDtoOut(request));
+        when(userService.findById(user.getId())).thenReturn(userDto);
         when(itemRequestRepository.findAllByRequesterId(userDto.getId())).thenReturn(List.of(request));
 
         List<ItemRequestDtoOut> realRequestsDto = requestServiceImp.getUserRequests(userDto.getId());

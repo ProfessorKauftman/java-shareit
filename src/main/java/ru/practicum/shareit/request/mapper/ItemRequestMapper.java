@@ -26,11 +26,13 @@ public class ItemRequestMapper {
     }
 
     public ItemRequestDtoOut toRequestDtoOut(ItemRequest itemRequest) {
-        List<ItemDtoOut> itemsDtoOut = Optional.ofNullable(itemRequest.getItems())
-                .map(items -> items.stream()
-                        .map(ItemMapper::toItemDtoOut)
-                        .collect(Collectors.toList()))
-                .orElseGet(Collections::emptyList);
+        List<ItemDtoOut> itemsDtoOut = new ArrayList<>();
+        if (!Objects.isNull(itemRequest.getItems())) {
+            itemsDtoOut = itemRequest.getItems()
+                    .stream()
+                    .map(ItemMapper::toItemDtoOut)
+                    .collect(Collectors.toList());
+        }
 
         return ItemRequestDtoOut.builder()
                 .id(itemRequest.getId())
