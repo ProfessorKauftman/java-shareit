@@ -17,10 +17,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,9 +37,6 @@ class BookingControllerTest {
 
     @MockBean
     BookingService bookingService;
-
-    private Clock fixed = Clock.fixed(Instant.parse("2024-05-23T12:34:56.789Z"), ZoneOffset.UTC);
-
     private final User user = User.builder()
             .id(1L)
             .name("Professor")
@@ -56,17 +50,17 @@ class BookingControllerTest {
             .owner(user)
             .build();
 
-    private final BookingDto bookingDto = BookingDto.builder()
+    BookingDto bookingDto = BookingDto.builder()
             .itemId(1L)
-            .start(LocalDateTime.now(fixed).plusDays(1L))
-            .end(LocalDateTime.now(fixed).plusDays(2L))
+            .start(LocalDateTime.of(2024, 05,23,12, 34,56).plusDays(1L))
+            .end(LocalDateTime.of(2024, 05,23,12, 34,56).plusDays(2L))
             .build();
 
 
-    private final BookingDtoOut bookingDtoOut = BookingDtoOut.builder()
+    BookingDtoOut bookingDtoOut = BookingDtoOut.builder()
             .id(1L)
-            .start(LocalDateTime.now(fixed).plusDays(1L))
-            .end(LocalDateTime.now(fixed).plusDays(2L))
+            .start(LocalDateTime.of(2024, 05,23,12, 34,56).plusDays(1L))
+            .end(LocalDateTime.of(2024, 05,23,12, 34,56).plusDays(2L))
             .status(Status.WAITING)
             .item(ItemMapper.toItemDtoOut(item))
             .booker(UserMapper.toUserDto(user))
@@ -76,6 +70,12 @@ class BookingControllerTest {
     @Test
     @SneakyThrows
     void whenCreateBookingIsOk() {
+        BookingDto bookingDto = BookingDto.builder()
+                .itemId(1L)
+                .start(LocalDateTime.now().plusDays(1L))
+                .end(LocalDateTime.now().plusDays(2L))
+                .build();
+
         when(bookingService.add(user.getId(), bookingDto)).thenReturn(bookingDtoOut);
 
         String result = mockMvc.perform(post("/bookings")
@@ -98,8 +98,8 @@ class BookingControllerTest {
                         + "\"comments\":null,"
                         + "\"nextBooking\":null,"
                         + "\"requestId\":null},"
-                        + "\"start\":\"2024-05-24T12:34:56.789\","
-                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"start\":\"2024-05-24T12:34:56\","
+                        + "\"end\":\"2024-05-25T12:34:56\","
                         + "\"booker\":{"
                         + "\"id\":1,"
                         + "\"name\":\"Professor\","
@@ -190,8 +190,8 @@ class BookingControllerTest {
                         + "\"nextBooking\":null,"
                         + "\"requestId\":null"
                         + "},"
-                        + "\"start\":\"2024-05-24T12:34:56.789\","
-                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"start\":\"2024-05-24T12:34:56\","
+                        + "\"end\":\"2024-05-25T12:34:56\","
                         + "\"booker\":{"
                         + "\"id\":1,"
                         + "\"name\":\"Professor\","
@@ -230,8 +230,8 @@ class BookingControllerTest {
                         + "\"nextBooking\":null,"
                         + "\"requestId\":null"
                         + "},"
-                        + "\"start\":\"2024-05-24T12:34:56.789\","
-                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"start\":\"2024-05-24T12:34:56\","
+                        + "\"end\":\"2024-05-25T12:34:56\","
                         + "\"booker\":{"
                         + "\"id\":1,"
                         + "\"name\":\"Professor\","
@@ -276,8 +276,8 @@ class BookingControllerTest {
                         + "\"nextBooking\":null,"
                         + "\"requestId\":null"
                         + "},"
-                        + "\"start\":\"2024-05-24T12:34:56.789\","
-                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"start\":\"2024-05-24T12:34:56\","
+                        + "\"end\":\"2024-05-25T12:34:56\","
                         + "\"booker\":{"
                         + "\"id\":1,"
                         + "\"name\":\"Professor\","
@@ -323,8 +323,8 @@ class BookingControllerTest {
                         + "\"nextBooking\":null,"
                         + "\"requestId\":null"
                         + "},"
-                        + "\"start\":\"2024-05-24T12:34:56.789\","
-                        + "\"end\":\"2024-05-25T12:34:56.789\","
+                        + "\"start\":\"2024-05-24T12:34:56\","
+                        + "\"end\":\"2024-05-25T12:34:56\","
                         + "\"booker\":{"
                         + "\"id\":1,"
                         + "\"name\":\"Professor\","
