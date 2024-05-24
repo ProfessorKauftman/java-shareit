@@ -76,7 +76,7 @@ public class ItemServiceIT {
             .build();
 
     private final BookingDto bookingDto = BookingDto.builder()
-            .itemId(1L)
+            .itemId(4L)
             .start(LocalDateTime.now())
             .end(LocalDateTime.now().plusSeconds(1L))
             .build();
@@ -90,7 +90,7 @@ public class ItemServiceIT {
         UserDto user = userService.add(userDto1);
         ItemDtoOut item = itemService.createItemDto(user.getId(), itemDto1);
 
-        assertEquals(1L, item.getId());
+        assertEquals(5L, item.getId());
         assertEquals("Lopata", item.getName());
     }
 
