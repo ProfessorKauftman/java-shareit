@@ -40,14 +40,15 @@ public class ItemServiceIT {
 
     @Autowired
     BookingService bookingService;
+
     private final UserDto userDto1 = UserDto.builder()
-            .name("professor")
+            .name("Professor")
             .email("professor@yandex.ru")
             .build();
 
     private final UserDto userDto2 = UserDto.builder()
-            .name("Ne_professor")
-            .email("Ne_professor@yandex.ru")
+            .name("Ne_Professor")
+            .email("NeProfessor@yandex.ru")
             .build();
 
     private final ItemDto itemDto1 = ItemDto.builder()
@@ -63,8 +64,8 @@ public class ItemServiceIT {
             .build();
 
     private final ItemDto itemDtoRequest = ItemDto.builder()
-            .name("itemDtoRequest")
-            .description("itemDtoRequest description")
+            .name("ItemDtoRequest name")
+            .description("ItemDtoRequest description")
             .available(true)
             .requestId(1L)
             .build();
@@ -74,57 +75,55 @@ public class ItemServiceIT {
             .build();
 
     private final BookingDto bookingDto = BookingDto.builder()
-            .itemId(1L)
+            .itemId(4L)
             .start(LocalDateTime.now())
             .end(LocalDateTime.now().plusSeconds(1L))
             .build();
 
     private final CommentDto commentDto = CommentDto.builder()
-            .text("comment text")
+            .text("comment")
             .build();
 
     @Test
+    void whenAddNewItemIsOk() {
+        UserDto user = userService.add(userDto1);
+        ItemDtoOut item = itemService.add(user.getId(), itemDto1);
+
+        assertEquals(5L, item.getId());
+        assertEquals("Lopata", item.getName());
+    }
+
+    @Test
     @SneakyThrows
-    void addCommentItem() {
-        UserDto addedUser1 = userService.add(userDto1);
-        UserDto addedUser2 = userService.add(userDto2);
-        ItemDtoOut addedItem = itemService.add(addedUser2.getId(), itemDto2);
-        BookingDtoOut bookingDtoOut = bookingService.add(addedUser1.getId(), bookingDto);
+    void whenAddCommentIsOk() {
+        UserDto user1 = userService.add(userDto1);
+        UserDto user2 = userService.add(userDto2);
+        ItemDtoOut item = itemService.add(user2.getId(), itemDto2);
+        BookingDtoOut bookingDtoOut = bookingService.add(user1.getId(), bookingDto);
 
-        bookingService.update(addedUser2.getId(), bookingDtoOut.getId(), true);
+        bookingService.update(user2.getId(), bookingDtoOut.getId(), true);
         Thread.sleep(2000);
-        CommentDtoOut addedComment = itemService.createComment(addedUser1.getId(), commentDto, addedItem.getId());
+        CommentDtoOut commentDtoOut = itemService.createComment(user1.getId(), commentDto, item.getId());
 
-        assertEquals(1L, addedComment.getId());
-        assertEquals("comment text", addedComment.getText());
+        assertEquals(1L, commentDtoOut.getId());
+        assertEquals("comment", commentDtoOut.getText());
     }
 
     @Test
-    void addNewItem() {
-        UserDto addedUser = userService.add(userDto1);
-        ItemDtoOut addedItem = itemService.add(addedUser.getId(), itemDto1);
+    void whenAddRequestIsOk() {
+        UserDto user = userService.add(userDto1);
+        requestService.add(user.getId(), requestDto);
 
-        assertEquals(1L, addedItem.getId());
-        assertEquals("Lopata", addedItem.getName());
+        ItemDtoOut itemRequest = itemService.add(user.getId(), itemDtoRequest);
+
+        assertEquals(1L, itemRequest.getRequestId());
+        assertEquals("ItemDtoRequest name", itemRequest.getName());
     }
 
     @Test
-    void addRequestItem() {
-        UserDto addedUser = userService.add(userDto1);
-        requestService.add(addedUser.getId(), requestDto);
+    void whenGetItemByIdIsNotValidShouldThrowException() {
+        long itemId = 3L;
 
-        ItemDtoOut addedItemRequest = itemService.add(addedUser.getId(), itemDtoRequest);
-
-        assertEquals(1L, addedItemRequest.getRequestId());
-        assertEquals("itemDtoRequest", addedItemRequest.getName());
-    }
-
-    @Test
-    void getItemByIdWhenItemIdIsNotValid() {
-        Long itemId = 3L;
-
-        Assertions
-                .assertThrows(RuntimeException.class,
-                        () -> itemService.findItemById(userDto1.getId(), itemId));
+        Assertions.assertThrows(RuntimeException.class, () -> itemService.findItemById(userDto1.getId(), itemId));
     }
 }

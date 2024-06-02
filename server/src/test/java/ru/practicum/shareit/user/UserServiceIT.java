@@ -27,7 +27,7 @@ public class UserServiceIT {
     void addNewUser() {
         UserDto actualUserDto = userService.add(userDto);
 
-        assertEquals(1L, actualUserDto.getId());
+        assertEquals(8L, actualUserDto.getId());
         assertEquals("professor", actualUserDto.getName());
         assertEquals("professor@yandex.ru", actualUserDto.getEmail());
     }

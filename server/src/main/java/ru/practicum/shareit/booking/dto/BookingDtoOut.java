@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import ru.practicum.shareit.user.UserDto;
 
 import java.time.LocalDateTime;
 
+@JsonPropertyOrder({ "id", "item", "start", "end", "booker", "status", "bookerId", "itemId" })
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

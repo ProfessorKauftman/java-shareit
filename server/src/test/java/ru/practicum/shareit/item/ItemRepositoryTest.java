@@ -14,7 +14,7 @@ import ru.practicum.shareit.user.User;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -38,7 +38,6 @@ class ItemRepositoryTest {
             .owner(user)
             .build();
 
-
     @BeforeEach
     public void addItems() {
         testEntityManager.persist(user);
@@ -57,5 +56,15 @@ class ItemRepositoryTest {
 
         assertEquals(items.size(), 1);
         assertEquals(items.get(0).getName(), "Lopata");
+    }
+
+    @Test
+    void whenFindItemByDescriptionIsOk() {
+        String searchQuery = "desc";
+
+        List<Item> foundItems = itemRepository.search(searchQuery,
+                PageRequest.of(0, 1));
+        assertFalse(foundItems.isEmpty());
+        assertTrue(foundItems.stream().anyMatch(item -> item.getDescription().toLowerCase().contains(searchQuery)));
     }
 }

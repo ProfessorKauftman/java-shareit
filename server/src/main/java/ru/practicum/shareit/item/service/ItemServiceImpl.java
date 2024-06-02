@@ -29,10 +29,7 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -118,9 +115,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public List<ItemDtoOut> findAll(Long userId, Integer from, Integer size) {
-        UserDto owner = userService.findById(userId);
         Pageable pageable = PageRequest.of(from / size, size);
-        List<Item> itemList = itemRepository.findAllByOwnerId(userId, pageable);
+        List<Item> itemList = new ArrayList<>(itemRepository.findAllByOwnerId(userId, pageable));
         itemList.sort((o1, o2) -> Math.toIntExact(o1.getId() - o2.getId()));
         List<Long> idList = itemList.stream()
                 .map(Item::getId)

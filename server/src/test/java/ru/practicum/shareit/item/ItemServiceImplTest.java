@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -30,8 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
@@ -51,31 +52,30 @@ class ItemServiceImplTest {
     UserService userService;
 
     @InjectMocks
-    ItemServiceImpl itemService;
+    ItemServiceImpl itemServiceImpl;
 
     private final User user = User.builder()
             .id(1L)
-            .name("professor")
+            .name("Professor")
             .email("professor@yandex.ru")
             .build();
 
     private final User user2 = User.builder()
             .id(2L)
             .name("Ne_professor")
-            .email("Ne_professor@yandex.ru")
+            .email("NePropfessor@yandex.ru")
             .build();
-
 
     private final UserDto userDto = UserDto.builder()
             .id(1L)
-            .name("professor")
-            .email("professor@yandex.ru")
+            .name("DtoProfessor")
+            .email("DtoProfessor@Yandex.ru")
             .build();
 
     private final Item item = Item.builder()
             .id(1L)
             .name("Lopata")
-            .description("description")
+            .description("Description for Lopata")
             .available(true)
             .owner(user)
             .build();
@@ -83,14 +83,14 @@ class ItemServiceImplTest {
     private final ItemDtoOut itemDto = ItemDtoOut.builder()
             .id(1L)
             .name("Lopata")
-            .description("description")
+            .description("Description for Lopata")
             .available(true)
             .comments(Collections.emptyList())
             .build();
 
     private final Comment comment = Comment.builder()
             .id(1L)
-            .text("comment")
+            .text("Comment")
             .created(LocalDateTime.now())
             .author(user)
             .item(item)
@@ -108,131 +108,197 @@ class ItemServiceImplTest {
     @Test
     void addNewItemWhenInvoked() {
         Item itemSaveTest = Item.builder()
-                .name("Lopata test")
-                .description("test lopata description")
+                .name("test item name")
+                .description("test description")
                 .available(true)
                 .build();
 
         when(userService.findById(user.getId())).thenReturn(userDto);
         when(itemRepository.save(itemSaveTest)).thenReturn(itemSaveTest);
 
-        ItemDtoOut actualItemDto = itemService.add(userDto.getId(), ItemMapper.toItemDto(itemSaveTest));
+        ItemDtoOut actualItemDto = itemServiceImpl.add(userDto.getId(), ItemMapper.toItemDto(itemSaveTest));
 
-        assertEquals(actualItemDto.getName(), "Lopata test");
-        assertEquals(actualItemDto.getDescription(), "test lopata description");
+        assertEquals(actualItemDto.getName(), "test item name");
+        assertEquals(actualItemDto.getDescription(), "test description");
     }
 
     @Test
-    void getItemById() {
+    void whenGetItemByIdIsCorrect() {
         when(userService.findById(user.getId())).thenReturn(userDto);
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
 
-        ItemDtoOut actualItemDto = itemService.findItemById(user.getId(), item.getId());
+        ItemDtoOut actualItemDto = itemServiceImpl.findItemById(user.getId(), item.getId());
 
         assertEquals(itemDto, actualItemDto);
     }
 
-
     @Test
-    void updateItem() {
+    void whenUpdateItemIsCorrect() {
         ItemRequest itemRequest = new ItemRequest(1L, "description", user, LocalDateTime.now(), null);
-        Item updatedItem = Item.builder()
+        Item updateItem = Item.builder()
                 .id(1L)
-                .name("updated lopata name")
-                .description("updated lopata description")
+                .name("Updated name")
+                .description("Updated description")
                 .available(false)
                 .owner(user)
                 .request(itemRequest)
                 .build();
 
         when(userService.findById(user.getId())).thenReturn(UserMapper.toUserDto(user));
-        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(updatedItem));
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.of(updateItem));
 
-        ItemDtoOut savedItem = itemService.update(user.getId(), itemDto.getId(), ItemMapper.toItemDto(updatedItem));
+        ItemDtoOut saveItem = itemServiceImpl.update(user.getId(), itemDto.getId(),
+                ItemMapper.toItemDto(updateItem));
 
-        assertEquals("updated lopata name", savedItem.getName());
-        assertEquals("updated lopata description", savedItem.getDescription());
+        assertEquals("Updated name", saveItem.getName());
+        assertEquals("Updated description", saveItem.getDescription());
     }
 
     @Test
-    void updateItemWhenUserIsNotItemOwnerShouldThrowException() {
-        Item updatedItem = Item.builder()
+    void whenUpdateItemAndUserIsNotItemOwnerShouldThrowException() {
+        Item updateItem = Item.builder()
                 .id(1L)
-                .name("updated lopata name")
-                .description("updated lopata description")
+                .name("Updated name")
+                .description("Updated description")
                 .available(false)
                 .owner(user2)
                 .build();
 
-        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(updatedItem));
         when(userService.findById(user.getId())).thenReturn(userDto);
+        when(itemRepository.findById(anyLong())).thenReturn(Optional.ofNullable(updateItem));
 
-        NotFoundException itemNotFoundException = assertThrows(NotFoundException.class,
-                () -> itemService.update(user.getId(), itemDto.getId(), ItemMapper.toItemDto(updatedItem)));
+        NotFoundException notFoundException = assertThrows(NotFoundException.class,
+                () -> itemServiceImpl.update(user.getId(), itemDto.getId(), ItemMapper.toItemDto(updateItem)));
 
-        assertEquals(itemNotFoundException.getMessage(), "User with id= " + user.getId() +
+        assertEquals(notFoundException.getMessage(), "User with id= " + user.getId() +
                 " is not the owner of the item with id= " + item.getId());
     }
 
     @Test
-    void updateItemWhenItemIdIsNotValid() {
+    void whenUpdateItemWithNotValidId() {
         when(itemRepository.findById(anyLong())).thenReturn(Optional.empty());
-        NotFoundException itemNotFoundException = assertThrows(NotFoundException.class,
-                () -> itemService.update(user.getId(), itemDto.getId(), ItemMapper.toItemDto(item)));
-        assertEquals(itemNotFoundException.getMessage(), "Item with id= " + item.getId() + " doesn't exist");
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class,
+                () -> itemServiceImpl.update(user.getId(), itemDto.getId(), ItemMapper.toItemDto(item)));
+        assertEquals(notFoundException.getMessage(), "Item with id= " + item.getId() + " doesn't exist");
     }
 
-
     @Test
-    void getAllComments() {
-        List<CommentDtoOut> expectedCommentsDto = List.of(CommentMapper.toCommentDtoOut(comment));
+    void whenGetAllCommentsIsCorrect() {
+        List<CommentDtoOut> commentDtoOutList = List.of(CommentMapper.toCommentDtoOut(comment));
         when(commentRepository.findAllByItemId(item.getId())).thenReturn(List.of(comment));
 
-        List<CommentDtoOut> actualComments = itemService.getAllItemComments(item.getId());
+        List<CommentDtoOut> realComments = itemServiceImpl.getAllItemComments(item.getId());
 
-        assertEquals(actualComments.size(), 1);
-        assertEquals(actualComments, expectedCommentsDto);
+        assertEquals(commentDtoOutList.size(), 1);
+        assertEquals(commentDtoOutList, realComments);
     }
 
-
     @Test
-    void createComment() {
-        CommentDtoOut expectedCommentDto = CommentMapper.toCommentDtoOut(comment);
+    void whenCreateCommentIsCorrect() {
+        CommentDtoOut commentDtoOut = CommentMapper.toCommentDtoOut(comment);
         when(userService.findById(user.getId())).thenReturn(userDto);
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
         when(bookingRepository.findAllByUserBookings(anyLong(), anyLong(), any(LocalDateTime.class)))
                 .thenReturn(List.of(booking));
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
-        CommentDtoOut actualCommentDto = itemService.createComment(user.getId(), CommentMapper.toCommentDto(comment), item.getId());
+        CommentDtoOut realComment = itemServiceImpl.createComment(user.getId(), CommentMapper.toCommentDto(comment),
+                item.getId());
 
-        assertEquals(expectedCommentDto, actualCommentDto);
+        assertEquals(commentDtoOut, realComment);
     }
 
     @Test
-    void createComment_whenItemIdIsNotValid_thenThrowObjectNotFoundException() {
+    void whenCreateCommentAndItemIdIsNotValidShouldThrowObjectNotFoundException() {
         when(userService.findById(user.getId())).thenReturn(userDto);
         when(itemRepository.findById(item.getId())).thenReturn(Optional.empty());
 
-        NotFoundException itemNotFoundException = assertThrows(NotFoundException.class,
-                () -> itemService.createComment(user.getId(), CommentMapper.toCommentDto(comment), item.getId()));
+        NotFoundException notFoundException = assertThrows(NotFoundException.class,
+                () -> itemServiceImpl.createComment(user.getId(), CommentMapper.toCommentDto(comment), item.getId()));
 
-        assertEquals(itemNotFoundException.getMessage(), "User with id= " + user.getId() + " doesn't " +
-                "have the item with id= " + item.getId());
+        assertEquals(notFoundException.getMessage(), "User with id= " + user.getId() +
+                " doesn't have the item with id= " + item.getId());
     }
 
     @Test
-    void createCommentWhenUserHaveNotAnyBookingsShouldThrowValidationException() {
+    void whenCreateCommentAndUserHasNotBookingsShouldThrowValidationException() {
         when(userService.findById(user.getId())).thenReturn(userDto);
         when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
         when(bookingRepository.findAllByUserBookings(anyLong(), anyLong(), any(LocalDateTime.class)))
                 .thenReturn(Collections.emptyList());
 
-        ValidationException userBookingsNotFoundException = assertThrows(ValidationException.class,
-                () -> itemService.createComment(user.getId(), CommentMapper.toCommentDto(comment), item.getId()));
+        ValidationException validationException = assertThrows(ValidationException.class,
+                () -> itemServiceImpl.createComment(user.getId(), CommentMapper.toCommentDto(comment), item.getId()));
 
-        assertEquals(userBookingsNotFoundException.getMessage(), "User with id= " + user.getId() +
+        assertEquals(validationException.getMessage(), "User with id= " + user.getId() +
                 " must be at least one booking of an item with an id= " + item.getId());
+
+    }
+
+    @Test
+    void searchShouldReturnEmptyListWhenTextIsBlank() {
+
+        Long userId = 1L;
+        String searchText = "  ";
+        Integer from = 0;
+        Integer size = 10;
+
+        when(userService.findById(userId)).thenReturn(userDto);
+
+        List<ItemDtoOut> result = itemServiceImpl.search(userId, searchText, from, size);
+
+
+        assertTrue(result.isEmpty());
+
+        verify(itemRepository, never()).search(anyString(), any(Pageable.class));
+    }
+
+    @Test
+    void searchShouldReturnItemsWhenTextIsNotBlank() {
+        Long userId = 1L;
+        String searchText = "Lopata";
+        Integer from = 0;
+        Integer size = 10;
+        Pageable pageable = PageRequest.of(from, size);
+
+        List<Item> searchResultList = List.of(item);
+
+        when(userService.findById(userId)).thenReturn(userDto);
+        when(itemRepository.search(searchText, pageable)).thenReturn(searchResultList);
+
+        List<ItemDtoOut> result = itemServiceImpl.search(userId, searchText, from, size);
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+
+        ItemDtoOut expectedDto = ItemMapper.toItemDtoOut(item);
+        ItemDtoOut actualDto = result.get(0);
+
+        assertEquals(expectedDto.getId(), actualDto.getId());
+        assertEquals(expectedDto.getName(), actualDto.getName());
+        assertEquals(expectedDto.getDescription(), actualDto.getDescription());
+
+        verify(userService).findById(userId);
+        verify(itemRepository).search(searchText, pageable);
+    }
+
+    @Test
+    void findAllShouldReturnItemDtosForGivenUser() {
+        Long userId = 1L;
+        Integer from = 0;
+        Integer size = 10;
+        Pageable pageable = PageRequest.of(from / size, size);
+
+        List<Item> foundItems = List.of(mock(Item.class));
+
+        when(itemRepository.findAllByOwnerId(userId, pageable)).thenReturn(foundItems);
+        List<ItemDtoOut> result = itemServiceImpl.findAll(userId, from, size);
+
+        assertNotNull(result);
+        assertEquals(foundItems.size(), result.size());
+
+        verify(itemRepository).findAllByOwnerId(userId, pageable);
 
     }
 
