@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoOut;
@@ -20,6 +22,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -29,8 +32,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,7 @@ public class ItemServiceImp implements ItemService {
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     @Transactional
@@ -48,6 +51,9 @@ public class ItemServiceImp implements ItemService {
         UserDto user = userService.findById(userId);
         Item item = ItemMapper.dtoToItem(itemDto);
         item.setOwner((UserMapper.toUser(user)));
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(itemRequestRepository.getReferenceById(itemDto.getRequestId()));
+        }
         return ItemMapper.toItemDtoOut(itemRepository.save(item));
     }
 
@@ -107,9 +113,10 @@ public class ItemServiceImp implements ItemService {
 
     @Override
     @Transactional
-    public List<ItemDtoOut> findAllItemsDto(Long userId) {
-        userService.findById(userId);
-        List<Item> itemList = itemRepository.findAllByOwnerId(userId);
+    public List<ItemDtoOut> findAllItemsDto(Long userId, Integer from, Integer size) {
+        UserDto owner = userService.findById(userId);
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Item> itemList = itemRepository.findAllByOwnerId(userId, pageable);
         List<Long> idList = itemList.stream()
                 .map(Item::getId)
                 .collect(Collectors.toList());
@@ -137,12 +144,13 @@ public class ItemServiceImp implements ItemService {
 
     @Override
     @Transactional
-    public List<ItemDtoOut> findItemDtoByText(Long userId, String text) {
+    public List<ItemDtoOut> findItemDtoByText(Long userId, String text, Integer from, Integer size) {
         userService.findById(userId);
+        Pageable pageable = PageRequest.of(from / size, size);
         if (text.isBlank()) {
             return Collections.emptyList();
         }
-        List<Item> itemList = itemRepository.search(text);
+        List<Item> itemList = itemRepository.search(text, pageable);
         return itemList.stream()
                 .map(ItemMapper::toItemDtoOut)
                 .collect(toList());

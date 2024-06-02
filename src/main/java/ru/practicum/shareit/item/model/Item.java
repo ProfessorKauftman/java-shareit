@@ -14,6 +14,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "items", schema = "public")
 public class Item {
     @Id
@@ -27,9 +28,12 @@ public class Item {
     private Boolean available;
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
+    @EqualsAndHashCode.Exclude
     private User owner;
     @ManyToOne
     @JoinColumn(name = "request_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private ItemRequest request;
 
     public Item(String name, String description, Boolean available) {

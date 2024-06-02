@@ -18,8 +18,7 @@ public class CommentMapper {
         return new Comment(
                 commentDto.getText(),
                 item,
-                user
-        );
+                user);
     }
 
     public CommentDtoOut toCommentDtoOut(Comment comment) {
