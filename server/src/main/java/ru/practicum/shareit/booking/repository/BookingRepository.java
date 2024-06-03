@@ -104,7 +104,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "WHERE b.item_id = ?1 " +
             "AND b.start_date < ?2 " +
             "AND b.status = 'APPROVED' " +
-            "ORDER BY b.start_date DESC LIMIT 1 ", nativeQuery = true)
+            "ORDER BY b.start_date DESC FETCH FIRST 1 ROW ONLY", nativeQuery = true)
     Optional<Booking> getLastBooking(Long idItem, LocalDateTime currentTime);
 
     @Query(value = "SELECT * FROM bookings as b " +
@@ -112,7 +112,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "WHERE b.item_id = ?1 " +
             "AND b.start_date > ?2 " +
             "AND b.status = 'APPROVED' " +
-            "ORDER BY b.start_date ASC LIMIT 1 ", nativeQuery = true)
+            "ORDER BY b.start_date ASC FETCH FIRST 1 ROW ONLY", nativeQuery = true)
     Optional<Booking> getNextBooking(Long idItem, LocalDateTime currentTime);
 
     @Query(value = "SELECT b.* FROM bookings as b " +

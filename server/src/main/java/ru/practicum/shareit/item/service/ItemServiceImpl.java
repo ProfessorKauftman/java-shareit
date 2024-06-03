@@ -37,7 +37,7 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final ItemRequestRepository itemRequestRepository;
@@ -86,7 +86,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ItemDtoOut findItemById(Long userId, Long itemId) {
         userService.findById(userId);
         Optional<Item> itemGet = itemRepository.findById(itemId);
@@ -113,7 +113,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemDtoOut> findAll(Long userId, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Item> itemList = new ArrayList<>(itemRepository.findAllByOwnerId(userId, pageable));
@@ -145,7 +145,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ItemDtoOut> search(Long userId, String text, Integer from, Integer size) {
         userService.findById(userId);
         Pageable pageable = PageRequest.of(from / size, size);
